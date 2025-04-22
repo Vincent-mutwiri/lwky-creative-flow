@@ -1,32 +1,20 @@
-
 import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 
-export const WaitlistForm: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    platform: ''
-  });
-  
-  const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    platform: ''
-  });
-  
+const WaitlistForm: React.FC = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', platform: '' });
+  const [errors, setErrors] = useState({ name: '', email: '', platform: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   const validateForm = () => {
     let isValid = true;
     const newErrors = { name: '', email: '', platform: '' };
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
       isValid = false;
     }
-    
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
       isValid = false;
@@ -34,61 +22,52 @@ export const WaitlistForm: React.FC = () => {
       newErrors.email = 'Email is invalid';
       isValid = false;
     }
-    
     if (!formData.platform.trim()) {
       newErrors.platform = 'Platform is required';
       isValid = false;
     }
-    
+
     setErrors(newErrors);
     return isValid;
   };
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error for this field
+    setFormData(prev => ({ ...prev, [name]: value }));
+
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
-  
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      setIsSubmitting(true);
-      
-      // Simulate form submission to your@email.com
-      setTimeout(() => {
-        console.log('Form submitted to your@email.com:', formData);
-        // In a real app, this would be an API call to submit the form data
-        // The form would be configured to send data to your@email.com
-        
-        setIsSubmitting(false);
+    if (!validateForm()) return;
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('https://sheetdb.io/api/v1/fmbwh0ad7p6q0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: formData })
+      });
+
+      if (response.ok) {
         setIsSubmitted(true);
-        
-        // Reset form
-        setFormData({
-          name: '',
-          email: '',
-          platform: ''
-        });
-      }, 1500);
+        setFormData({ name: '', email: '', platform: '' });
+      } else {
+        alert('Submission failed. Try again later.');
+      }
+    } catch (error) {
+      alert('An error occurred: ' + error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
+
   return (
     <section id="waitlist" className="py-20 px-6 bg-gradient-to-b from-lwky-deep-blue to-lwky-black relative">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iLjA1Ij48cGF0aCBkPSJNMzYgMzBoLTZWMGg2djMwem0tNiAwSDI0VjBoNnYzMHpNMTggMzBoLTZWMGg2djMweiIvPjwvZz48L2c+PC9zdmc+')] opacity-5"></div>
-      
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,...')] opacity-5"></div>
       <div className="container mx-auto relative z-10">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
@@ -99,7 +78,7 @@ export const WaitlistForm: React.FC = () => {
               Be among the first to experience LWKY when we launch. Get exclusive early access and special rates.
             </p>
           </div>
-          
+
           <div className="bg-gradient-to-br from-lwky-deep-blue to-lwky-blue p-8 rounded-2xl border border-white/10 shadow-xl animate-fade-in">
             {isSubmitted ? (
               <div className="text-center py-8">
@@ -112,10 +91,7 @@ export const WaitlistForm: React.FC = () => {
                 <p className="text-white/70 mb-6">
                   Thank you for joining the LWKY waitlist. We'll notify you when we launch.
                 </p>
-                <button 
-                  onClick={() => setIsSubmitted(false)}
-                  className="btn-secondary"
-                >
+                <button onClick={() => setIsSubmitted(false)} className="btn-secondary">
                   Join Again
                 </button>
               </div>
@@ -129,15 +105,12 @@ export const WaitlistForm: React.FC = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className={cn(
-                      "input-field",
-                      errors.name && "border-red-500"
-                    )}
+                    className={cn("input-field", errors.name && "border-red-500")}
                     placeholder="John Doe"
                   />
                   {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
-                
+
                 <div className="mb-6">
                   <label htmlFor="email" className="block text-white mb-2">Email Address</label>
                   <input
@@ -146,15 +119,12 @@ export const WaitlistForm: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={cn(
-                      "input-field",
-                      errors.email && "border-red-500"
-                    )}
+                    className={cn("input-field", errors.email && "border-red-500")}
                     placeholder="your@email.com"
                   />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
-                
+
                 <div className="mb-8">
                   <label htmlFor="platform" className="block text-white mb-2">Your Primary Platform</label>
                   <select
@@ -162,10 +132,7 @@ export const WaitlistForm: React.FC = () => {
                     name="platform"
                     value={formData.platform}
                     onChange={handleChange}
-                    className={cn(
-                      "input-field",
-                      errors.platform && "border-red-500"
-                    )}
+                    className={cn("input-field text-black", errors.platform && "border-red-500")}
                   >
                     <option value="">Select a platform</option>
                     <option value="youtube">YouTube</option>
@@ -178,14 +145,11 @@ export const WaitlistForm: React.FC = () => {
                   </select>
                   {errors.platform && <p className="text-red-500 text-sm mt-1">{errors.platform}</p>}
                 </div>
-                
-                <button 
-                  type="submit" 
-                  className={cn(
-                    "btn-primary w-full flex items-center justify-center",
-                    isSubmitting && "opacity-70 cursor-not-allowed"
-                  )}
+
+                <button
+                  type="submit"
                   disabled={isSubmitting}
+                  className={cn("btn-primary w-full flex items-center justify-center", isSubmitting && "opacity-70 cursor-not-allowed")}
                 >
                   {isSubmitting ? (
                     <>
@@ -199,7 +163,7 @@ export const WaitlistForm: React.FC = () => {
                     "Join the Waitlist"
                   )}
                 </button>
-                
+
                 <p className="text-xs text-center text-white/50 mt-4">
                   By submitting, you agree to receive updates from LWKY about our services.
                 </p>
